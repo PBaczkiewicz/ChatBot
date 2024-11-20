@@ -130,6 +130,7 @@
     <Compile Include="Monitor.cs" />
     <Compile Include="Motherboard.cs" />
     <Compile Include="Mouse.cs" />
+    <Compile Include="PCBuild.cs" />
     <Compile Include="PSU.cs" />
     <Compile Include="RAM.cs" />
     <Compile Include="Responses.cs" />

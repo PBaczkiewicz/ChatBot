@@ -18,18 +18,39 @@ namespace ChatBot
         public float? cas_latency { get; set; }
 
 
+        //public List<int> GetSpeedAsList()
+        //{
+        //    if (speed is int singleRpm) return new List<int> { singleRpm };
+        //    return speed as List<int> ?? new List<int>();
+        //}
+
         public List<int> GetSpeedAsList()
         {
-            if (speed is int singleRpm) return new List<int> { singleRpm };
-            return speed as List<int> ?? new List<int>();
+            if (speed is int singleValue)
+                return new List<int> { singleValue };
+
+            if (speed is IEnumerable<object> enumerable)
+                return enumerable.Select(item => Convert.ToInt32(item)).ToList();
+
+            return new List<int>();
         }
+
+        //public List<int> GetModulesAsList()
+        //{
+        //    if (modules is int singleRpm) return new List<int> { singleRpm };
+        //    return modules as List<int> ?? new List<int>();
+        //}
 
         public List<int> GetModulesAsList()
         {
-            if (modules is int singleRpm) return new List<int> { singleRpm };
-            return modules as List<int> ?? new List<int>();
-        }
+            if (modules is int singleValue)
+                return new List<int> { singleValue };
 
+            if (modules is IEnumerable<object> enumerable)
+                return enumerable.Select(item => Convert.ToInt32(item)).ToList();
+
+            return new List<int>();
+        }
 
 
         //public RAM(string name, float? price, int?[] speed, int?[] modules, float? price_per_gb, string color, int? first_word_latency, int? cas_latency)
