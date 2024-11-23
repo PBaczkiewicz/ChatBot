@@ -51,6 +51,7 @@ namespace ChatBot
 
         }
 
+        //Manages "chat"
         static void ChatManager()
         {
             GenerateKeywordResponse();
@@ -66,12 +67,14 @@ namespace ChatBot
             Thread.Sleep(1500);
         }
 
+        //Manages input and gives response
         static string ManageResponse(string input)
         {
             string response = "";
+            //Checks if input is tied to pc building keywords
             switch (bP)
             {
-                //Phase 1 Works
+                //Phase 1 Starts building pc
                 case BuildPhase.None:
                     response = BuildPhaseNoneKR();
                     if (response != "")
@@ -81,7 +84,7 @@ namespace ChatBot
                         return response;
                     }
                     break;
-                //Phase 2 works (saves type to pc variable)
+                //Phase 2 user chooses which computer he wants
                 case BuildPhase.Type:
                     response = BuildPhaseTypeKR();
                     if (response != "")
@@ -89,14 +92,15 @@ namespace ChatBot
                         return response;
                     }
                     break;
-                //Phase 3 works
+                //Phase 3 user chooses if he want a peripherals or not (keyboard, mouse, monitor)
                 case BuildPhase.Peripherals:
                     response = BuildPhasePeripheralsKR();
                     if (response != "") return response;
                     break;
-                //Phase 4 works, now to add a pc builds in PCBuild.cs class
+                //Phase 4 users inputs his budget and if it is above minimal treshold, chatbot generates 4 pc builds
                 case BuildPhase.Budget:
                     response = BuildPhaseBudgetKR();
+                    if (response == bPNotEnoughBudget.response[0]) return response;
                     response += "\nBuild No.1 Intel CPU\n";
                     response += pc.BuildPC(true);
                     response += "\n\nBuild No.2 AMD CPU\n";
@@ -107,17 +111,14 @@ namespace ChatBot
                     response += pc.BuildPC(true);
                     response += "\n\nBuild No.4 AMD CPU with increased budget to " + higherBudget+"\n";
                     response += pc.BuildPC(false);
-
-                    if (response != "") return response;
-                    break;
-                //Phase 5 idk if neccesary, leave for now
-                case BuildPhase.Review:
-                    response = BuildPhaseReviewKR();
+                    response += "\n\nHere are 4 builds for you. If you want another just start again :)";
+                    bP = BuildPhase.None;
                     if (response != "") return response;
                     break;
 
             }
 
+            //Other responses
             foreach (KR item in kr)
             {
                 foreach (string keyword in item.keywords)
@@ -130,13 +131,17 @@ namespace ChatBot
                 }
             }
 
+            //If input does not match any keyword, returns default responses
             return Responses.defaultResponse[rng.Next(0, Responses.defaultResponse.Count)];
         }
 
 
         #region Applying keyword-response data
+
+        //Applies keyword-responses to lists
         static void GenerateKeywordResponse()
         {
+            kr.Add(new KR(Keywords.help, Responses.help));
             kr.Add(new KR(Keywords.greetings, Responses.greetings));
             kr.Add(new KR(Keywords.weather, Responses.weather));
             kr.Add(new KR(Keywords.joke, Responses.joke));
@@ -144,6 +149,18 @@ namespace ChatBot
             kr.Add(new KR(Keywords.robot, Responses.robot));
             kr.Add(new KR(Keywords.goodbye, Responses.goodbye));
             kr.Add(new KR(Keywords.poland, Responses.poland));
+            kr.Add(new KR(Keywords.howAreYou, Responses.howAreYou));
+            kr.Add(new KR(Keywords.wasaaap, Responses.wasaaap));
+            kr.Add(new KR(Keywords.porn, Responses.porn));
+            kr.Add(new KR(Keywords.love, Responses.love));
+            kr.Add(new KR(Keywords.money, Responses.money));
+            kr.Add(new KR(Keywords.music, Responses.music));
+            kr.Add(new KR(Keywords.movie, Responses.movie));
+            kr.Add(new KR(Keywords.cook, Responses.cook));
+            kr.Add(new KR(Keywords.sport, Responses.sport));
+            kr.Add(new KR(Keywords.news, Responses.news));
+            kr.Add(new KR(Keywords.thanks, Responses.thanks));
+
 
 
             #region PC building keywords-responses
@@ -155,6 +172,7 @@ namespace ChatBot
             bPTypeWork = (new KR(Keywords.bPTypeWork, Responses.bPTypeWork));
             bPTypeStudent = (new KR(Keywords.bPTypeStudent, Responses.bPTypeStudent));
             bPBudget = (new KR(Keywords.bPBudget, Responses.bPBudget));
+            bPNotEnoughBudget = (new KR(Keywords.bPNotEnoughBudget, Responses.bPNotEnoughBudget));
             bPPeripherals = (new KR(Keywords.bPPeripherals, Responses.bPPeripherals));
             bPNoPeripherals = (new KR(Keywords.bPNoPeripherals, Responses.bPNoPeripherals));
             bPType = (new KR(Keywords.bPType, Responses.bPType));
@@ -180,6 +198,7 @@ namespace ChatBot
         static public KR bPNoPeripherals = new KR();//done
 
         static public KR bPBudget = new KR();//done
+        static public KR bPNotEnoughBudget = new KR();
 
         static public KR bPReview = new KR();//done
 
@@ -196,13 +215,14 @@ namespace ChatBot
         #endregion
 
 
-        //ALL DONE
+        //Starts a build
         static string BuildPhaseNoneKR()
         {
             foreach (string keyword in bPType.keywords)
             {
                 if (input.Contains(keyword))
                 {
+                    pc = new PCBuild();
                     return bPType.response[rng.Next(0, bPType.response.Count)];
 
                 }
@@ -211,7 +231,7 @@ namespace ChatBot
             return "";
         }
 
-        //99% all done
+        //Returns type of PC build
         static string BuildPhaseTypeKR()
         {
             bP = BuildPhase.Peripherals;
@@ -272,7 +292,7 @@ namespace ChatBot
             return Responses.bPWrongType[0];
         }
 
-        //ALL DONE? PROBABLY
+        //Returns information about peripherals (yes or no)
         static string BuildPhasePeripheralsKR()
         {
             int budget = 0;
@@ -298,6 +318,7 @@ namespace ChatBot
                     if (pc.buildType == BuildType.Graphics) budget = minimalBudgetWOPgr;
                     else budget = minimalBudgetWOP;
                     pc.minimalBudget = budget;
+                    pc.peripherals = false;
                     return bPNoPeripherals.response[rng.Next(0, bPNoPeripherals.response.Count)] + budget;
 
                 }
@@ -306,28 +327,15 @@ namespace ChatBot
             return "";
         }
 
-
+        //Checks input for a value
         static string BuildPhaseBudgetKR()
         {
             pc.budget = ExtractBudget(input);
             if (pc.budget > pc.minimalBudget) return bPBudget.response[0] + pc.budget.ToString() + bPBudget.response[1];
+            else if (pc.budget < pc.minimalBudget) return bPNotEnoughBudget.response[0];
 
             return "";
         }
-        static string BuildPhaseReviewKR()
-        {
-            foreach (string keyword in bPNone.keywords)
-            {
-                if (input.Contains(keyword))
-                {
-                    return bPNone.response[rng.Next(0, bPNone.response.Count)];
-                }
-            }
-
-            return "";
-        }
-
-
         #endregion
         #region Saving and loading data from component's JSON
         static void LoadDataBase()
@@ -468,6 +476,8 @@ namespace ChatBot
             File.WriteAllText(processorPath, jsonString);
         }
         #endregion
+
+        //Using regex checks input for any int value
         static int? ExtractBudget(string input)
         {
             // Regex, which searches for a number in input
@@ -482,10 +492,8 @@ namespace ChatBot
                     return budget;
                 }
             }
-
-            return null;
+            return 0;
         }
-
     }
 
     enum BuildPhase

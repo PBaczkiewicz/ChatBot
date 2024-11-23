@@ -23,6 +23,7 @@ namespace ChatBot
         public Monitor monitor;
         public Mouse mouse;
 
+        //Clears every component (probably not neccessary but i am scared to delete this)
         void ClearComponents()
         {
             cpu = null;
@@ -70,6 +71,7 @@ namespace ChatBot
         public PCBuild() { }
 
 
+        //Generates a PC build
         public string BuildPC(bool intel = true)
         {
 
@@ -113,11 +115,15 @@ namespace ChatBot
             if (budgetGpu > 0) SelectGPU();
             if (gpu != null)
             {
-                response += "\nGPU : " + gpu.name + " Price :" + gpu.price + "$";
+                response += "\nGPU : " + gpu.chipset + " Price :" + gpu.price + "$";
                 response += "\n\tMemory : " + gpu.memory + " GB";
                 if (gpu.core_clock != null) response += "  Core clock :" + gpu.core_clock;
                 if (gpu.boost_clock != null) response += "  Boost clock :" + gpu.boost_clock;
                 if (gpu.length != null) response += "  Length :" + gpu.length + " cm";
+            }
+            else if(cpu.graphics!=null)
+            {
+                response += "\nGPU : (Integrated) " + cpu.graphics;
             }
 
             if (budgetRam > 0) SelectRAM();
@@ -138,7 +144,7 @@ namespace ChatBot
             {
                 response += "\nMonitor : " + monitor.name + " Price :" + monitor.price + "$";
                 if (monitor.resolution != null) response += "\n\t Resolution :" + monitor.resolution[0] + "x" + monitor.resolution[1];
-                if (monitor.refresh_rate != null) response += "  Refresh rate :" + monitor.refresh_rate+"";
+                if (monitor.refresh_rate != null) response += "  Refresh rate :" + monitor.refresh_rate+" hz";
             }
             if (budgetMouse > 0) SelectMouse();
             if (mouse != null) response += "\nMouse : " + mouse.name + " Price :" + mouse.price + "$";
@@ -152,6 +158,7 @@ namespace ChatBot
             return response;
         }
 
+        //Sums up a price
         double? TotalPrice()
         {
             float? value = 0;
@@ -167,6 +174,8 @@ namespace ChatBot
             if (keyboard != null) value += keyboard.price;
             return Math.Round((double)value, 2);
         }
+
+        
         bool SelectMotherboard(bool intel = true)
         {
             List<Motherboard> mBList = Program.motherboardList
